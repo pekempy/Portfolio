@@ -32,7 +32,6 @@ describe('Authentication Flow', () => {
     beforeAll(async () => {
         const bcrypt = await import('bcryptjs');
         process.env.ADMIN_USERNAME = 'admin';
-        // Use a fixed hash for 'password123'
         process.env.ADMIN_PASSWORD_HASH = bcrypt.default.hashSync('password123', 10);
         process.env.JWT_SECRET = 'test-secret';
     });
@@ -44,7 +43,6 @@ describe('Authentication Flow', () => {
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ success: true });
-        // Check for the httpOnly cookie
         const cookies = res.headers['set-cookie'];
         expect(cookies).toBeDefined();
         expect(cookies[0]).toMatch(/auth_token=/);

@@ -46,7 +46,6 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
     const dragRef = useRef<{ startX: number, startY: number, startPosX: number, startPosY: number, currentX: number, currentY: number } | null>(null);
     const [isDragging, setIsDragging] = useState(false);
 
-    // Sync preview state when modal opens
     useEffect(() => {
         if (isPositioning) {
             const [x, y] = (item.objectPosition as string || '50% 50%').split(' ').map(s => parseFloat(s));
@@ -244,13 +243,11 @@ interface EditableListProps {
     renderItem: (item: ListItem, index: number) => React.ReactNode;
     title?: string;
     itemContainer?: React.ElementType;
-    // In EditableList.tsx
-    // ...
     itemContainerProps?: React.ComponentProps<React.ElementType>;
     enableSlug?: boolean;
     enableSubtitle?: boolean;
     enableDate?: boolean;
-    appendItems?: React.ReactNode; // New prop
+    appendItems?: React.ReactNode;
 }
 
 export function EditableList({ contentKey, defaultItems, renderItem, title, itemContainer: Container, itemContainerProps, enableSlug, enableSubtitle, enableDate, appendItems }: EditableListProps) {

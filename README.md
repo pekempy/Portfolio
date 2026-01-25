@@ -100,7 +100,7 @@ sudo apt install git -y
 ### 3. Clone and Secure the App
 ```bash
 # if on Github 
-git clone https://github.com/your-username/your-repo.git /var/www/portfolio
+git clone https://github.com/pekempy/portfolio.git /var/www/portfolio
 # scp to ssh copy (from your host machine)
 scp -r /path/to/your-repo root@your_droplet_ip:/var/www/portfolio
 

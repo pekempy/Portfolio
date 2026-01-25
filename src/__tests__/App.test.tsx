@@ -6,13 +6,11 @@ import { ContentProvider } from '../context/ContentContext';
 import { theme } from '../theme';
 import App from '../App';
 
-// Mock fetch global
 globalThis.fetch = vi.fn();
 
 describe('App', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-        // Default fetch mock response
         (globalThis.fetch as Mock).mockResolvedValue({
             ok: true,
             json: async () => ({}),
@@ -29,6 +27,5 @@ describe('App', () => {
                 </ContentProvider>
             </MantineProvider>
         );
-        // If it renders without throwing, the test passes
     });
 });

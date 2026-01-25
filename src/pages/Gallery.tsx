@@ -20,7 +20,6 @@ export function Gallery() {
     const { content } = useContent();
     const galleryItems = (content['gallery.items'] as ListItem[]) || defaultGalleryImages;
 
-    // Collect images from work projects
     const projectGalleryItems = Object.keys(content)
         .filter(key => key.startsWith('work.project.') && key.endsWith('.gallery'))
         .flatMap(key => (content[key] as ListItem[] || []).map(item => ({ ...item, _isProject: true })));

@@ -17,7 +17,7 @@ export const login = (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 12 * 60 * 60 * 1000 // 12 hours
+            maxAge: 12 * 60 * 60 * 1000
         });
         return res.json({ success: true });
     }

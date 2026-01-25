@@ -6,7 +6,6 @@ import { MantineProvider } from '@mantine/core';
 import { useContent } from '../../context/ContentContext';
 import React from 'react';
 
-// Mock the context module
 vi.mock('../../context/ContentContext', async () => {
     const actual = await vi.importActual('../../context/ContentContext');
     return {
@@ -33,7 +32,6 @@ const renderWithMantine = (component: React.ReactNode) => {
 describe('EditableText Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Default mock implementation
         vi.mocked(useContent).mockReturnValue({
             content: defaultContent,
             updateContent: mockUpdateContent,
@@ -45,8 +43,6 @@ describe('EditableText Component', () => {
     it('renders text content correctly in read-only mode', () => {
         renderWithMantine(<EditableText contentKey="home.title" defaultValue="Default Title" />);
         expect(screen.getByText('Welcome Home')).toBeInTheDocument();
-        // Should not have the edit icon or be clickable in a way that opens popover (implementation detail, but check logic)
-        // In read-only, it just renders the component (Text by default)
     });
 
     it('uses defaultValue if contentKey is missing', () => {
@@ -69,20 +65,11 @@ describe('EditableText Component', () => {
         } as unknown as ReturnType<typeof useContent>);
 
         renderWithMantine(<EditableText contentKey="home.title" defaultValue="Title" />);
-
-        // Check if the Text component has the pointer cursor style or class indicating interactivity
-        // Or check for the IconPencil which is rendered conditionally
-        // Note: IconPencil might be hidden or styled, but it should be in the DOM
-
-        // "Welcome Home" should be there
         expect(screen.getByText('Welcome Home')).toBeInTheDocument();
 
-        // We can interact
         const textElement = screen.getByText('Welcome Home');
         fireEvent.click(textElement);
 
-        // Expect Popover to open -> Textarea with value
-        // The Textarea inside Popover might take a moment or be immediate
         await waitFor(() => {
             expect(screen.getByRole('textbox', { name: "Edit text content" })).toHaveValue('Welcome Home');
         });
@@ -98,17 +85,14 @@ describe('EditableText Component', () => {
 
         renderWithMantine(<EditableText contentKey="home.title" defaultValue="Title" />);
 
-        // Open editor
         fireEvent.click(screen.getByText('Welcome Home'));
 
-        // Change text
         await waitFor(() => {
             screen.getByRole('textbox', { name: "Edit text content" });
         });
         const input = screen.getByRole('textbox', { name: "Edit text content" });
         fireEvent.change(input, { target: { value: 'New World' } });
 
-        // Save
         const saveBtn = screen.getByRole('button', { name: /save changes/i });
         fireEvent.click(saveBtn);
 

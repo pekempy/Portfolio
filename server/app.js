@@ -9,10 +9,8 @@ import apiRouter from './routes/api.js';
 import { apiLimiter } from './middleware/limiters.js';
 import fs from 'fs';
 
-// Initialize directories
 initDirectories();
 
-// Initialize staged file if missing
 if (!fs.existsSync(STAGED_FILE)) {
     if (fs.existsSync(CONTENT_FILE)) {
         fs.copyFileSync(CONTENT_FILE, STAGED_FILE);
@@ -33,14 +31,11 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 
-// Static files
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use(express.static(DIST_DIR));
 
-// API Router
 app.use('/api', apiLimiter, apiRouter);
 
-// SPA fallback
 app.get(/^(?!\/api).+/, (req, res) => {
     const indexPath = path.join(DIST_DIR, 'index.html');
     if (fs.existsSync(indexPath)) {

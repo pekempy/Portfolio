@@ -12,15 +12,17 @@ const defaultVideos = [
     { _id: '3', title: 'Commercial Reel', src: 'https://www.youtube.com/embed/YE7VzlLtp-4' }
 ];
 
-function getThumbnail(url: string) {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        let id = '';
-        if (url.includes('embed/')) id = url.split('embed/')[1]?.split('?')[0];
-        else if (url.includes('v=')) id = url.split('v=')[1]?.split('&')[0];
-        else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1]?.split('?')[0];
+function extractYouTubeId(url: string) {
+    if (!url) return null;
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+}
 
-        if (id) return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
-    }
+function getThumbnail(url: string) {
+    const id = extractYouTubeId(url);
+    if (id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+
     if (url.includes('vimeo.com')) {
         const id = url.split('/').pop()?.split('?')[0];
         return `https://vumbnail.com/${id}.jpg`;
@@ -30,13 +32,9 @@ function getThumbnail(url: string) {
 
 function getEmbedUrl(url: string) {
     if (!url) return '';
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        let id = '';
-        if (url.includes('embed/')) id = url.split('embed/')[1]?.split('?')[0];
-        else if (url.includes('v=')) id = url.split('v=')[1]?.split('&')[0];
-        else if (url.includes('youtu.be/')) id = url.split('youtu.be/')[1]?.split('?')[0];
-
-        return id ? `https://www.youtube.com/embed/${id}` : url;
+    const id = extractYouTubeId(url);
+    if (id) {
+        return `https://www.youtube.com/embed/${id}?rel=0`;
     }
     if (url.includes('vimeo.com') && !url.includes('player.vimeo.com')) {
         const id = url.split('/').pop()?.split('?')[0];
@@ -48,7 +46,7 @@ function getEmbedUrl(url: string) {
 export function Reels() {
     const { content } = useContent();
     const reels = (content['reels.items'] as ListItem[]) || defaultVideos;
-    const [activeVideoIndex, setActiveActiveVideoIndex] = useState(0);
+    const [activeVideoIndex, setActiveVideoIndex] = useState(0);
 
     const activeVideo = reels[activeVideoIndex] || reels[0];
 
@@ -102,7 +100,8 @@ export function Reels() {
                                         src={getEmbedUrl(String(activeVideo.src))}
                                         title={activeVideo.title}
                                         style={{ border: 0 }}
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerPolicy="strict-origin-when-cross-origin"
                                         allowFullScreen
                                     />
                                 </AspectRatio>
@@ -150,7 +149,7 @@ export function Reels() {
                                             backgroundColor: 'rgba(255,255,255,0.03)',
                                             overflow: 'hidden'
                                         }}
-                                        onClick={() => setActiveActiveVideoIndex(index)}
+                                        onClick={() => setActiveVideoIndex(index)}
                                     >
                                         <AspectRatio ratio={16 / 9} pos="relative">
                                             <Image

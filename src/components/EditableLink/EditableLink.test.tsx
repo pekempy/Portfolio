@@ -6,7 +6,6 @@ import { MantineProvider } from '@mantine/core';
 import { useContent } from '../../context/ContentContext';
 import React from 'react';
 
-// Mock the context
 vi.mock('../../context/ContentContext', async () => {
     const actual = await vi.importActual('../../context/ContentContext');
     return {
@@ -35,7 +34,6 @@ const renderWithMantine = (component: React.ReactNode) => {
 describe('EditableLink Component', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Default mock implementation
         vi.mocked(useContent).mockReturnValue({
             content: defaultContent,
             updateContent: mockUpdateContent,
@@ -53,12 +51,8 @@ describe('EditableLink Component', () => {
             />
         );
 
-        // Should find link with correct url from content (twitter), not default (facebook)
         const link = screen.getByRole('link');
         expect(link).toHaveAttribute('href', 'https://twitter.com');
-
-        // We can't easily check for the SVG icon content without complex selectors, 
-        // but checking the href confirms it loaded the content item.
     });
 
     it('uses defaults when content is missing', () => {
@@ -97,10 +91,8 @@ describe('EditableLink Component', () => {
             />
         );
 
-        // Click the wrapper
         fireEvent.click(container.firstElementChild!);
 
-        // Wait for and verify popover content
         expect(await screen.findByText('LINK SETTINGS')).toBeInTheDocument();
         expect(await screen.findByLabelText('Target URL')).toHaveValue('https://twitter.com');
     });

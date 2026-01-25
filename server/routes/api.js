@@ -9,23 +9,23 @@ import { upload } from '../services/uploadService.js';
 
 const router = express.Router();
 
-// Auth routes
+// Auth
 router.post('/login', loginLimiter, authController.login);
 router.post('/logout', authController.logout);
 router.get('/auth-check', authController.authCheck);
 
-// Content routes
+// Content
 router.get('/content', contentController.getContent);
 router.get('/content/staged', verifyToken, contentController.getStagedContent);
 router.post('/content', verifyToken, contentController.updateContent);
 router.post('/publish', verifyToken, contentController.publish);
 router.post('/discard', verifyToken, contentController.discard);
 
-// Version routes
+// Version
 router.get('/versions', verifyToken, versionController.getVersions);
 router.post('/revert', verifyToken, versionController.revertVersion);
 
-// Upload routes
+// Upload
 router.post('/upload', verifyToken, upload.single('file'), uploadController.uploadFile);
 router.delete('/upload/:filename', verifyToken, uploadController.deleteFile);
 
