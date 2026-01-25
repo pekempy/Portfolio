@@ -1,0 +1,65 @@
+@import '@mantine/core/styles.css';
+
+.editable-image-container:hover .hover-overlay {
+  opacity: 1 !important;
+}
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.editable-text-wrapper :is(p, span, h1, h2, h3, h4, h5, h6, a, button) {
+  transition: all 0.2s ease;
+}
+
+.editable-text-wrapper:hover :is(p, span, h1, h2, h3, h4, h5, h6, a, button) {
+  color: var(--hover-color) !important;
+  background-color: var(--hover-bg) !important;
+  border-color: var(--hover-border) !important;
+}
+
+.editable-text-wrapper :is(a, button):active {
+  color: var(--active-color) !important;
+  background-color: var(--active-bg) !important;
+  border-color: var(--active-border) !important;
+}
+
+.editable-text-wrapper a.active {
+  color: var(--active-color) !important;
+  background-color: var(--active-bg) !important;
+  border-color: var(--active-border) !important;
+}
+
+.editable-link-icon {
+  transition: all 0.2s ease;
+  display: inline-flex;
+}
+
+.editable-link-icon:hover {
+  color: var(--hover-color) !important;
+  transform: translateY(-3px);
+}
+.video-thumbnail {
+  transition: transform 0.3s ease;
+}
+
+.video-thumbnail:hover {
+  transform: scale(1.05);
+}
