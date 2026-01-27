@@ -1,7 +1,8 @@
-import { Container, Title, SimpleGrid, Text, Box } from '@mantine/core';
+import { Container, Title, SimpleGrid, Box } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { EditableText } from '../components/EditableText';
 import { EditableSocialLinks } from '../components/EditableSocialLinks';
+import { EditableParagraphs } from '../components/EditableParagraphs';
 
 const defaultSocials = [
     { _id: 'social-1', icon: 'instagram', url: '#', style: { color: '#ffffff', hoverColor: '#dbc674' } },
@@ -22,24 +23,67 @@ export function Contact() {
                 >
                     <Title order={1} mb="xl" style={{ fontFamily: 'Playfair Display, serif' }}>
                         <EditableText contentKey="contact.title" defaultValue="Get in Touch" />
+
                     </Title>
-                    <EditableText
-                        contentKey="contact.description"
-                        defaultValue="For booking inquiries, collaborations, or just to say hello, please drop me an email."
-                        as={Text}
-                        size="lg"
-                        c="dimmed"
-                        mb="xl"
-                    />
-
                     <Box mb="xl">
-                        <Title order={3} mb="md"><EditableText contentKey="contact.rep1.title" defaultValue="Representation" /></Title>
-                        <EditableText contentKey="contact.rep1.name" defaultValue="Creative Artists Agency (CAA)" as={Text} fw={600} mb={5} />
-                        <EditableText contentKey="contact.rep1.details" defaultValue="agent@caa.com | +1 (555) 123-4567" as={Text} c="dimmed" mb={20} />
-
-                        <Title order={3} mb="md"><EditableText contentKey="contact.rep2.title" defaultValue="Direct Management" /></Title>
-                        <EditableText contentKey="contact.rep2.name" defaultValue="Jane Doe Management" as={Text} fw={600} mb={5} />
-                        <EditableText contentKey="contact.rep2.details" defaultValue="jane@management.com | +1 (555) 987-6543" as={Text} c="dimmed" />
+                        <EditableParagraphs
+                            contentKey="contact.combined_content"
+                            defaultItems={[
+                                {
+                                    _id: '1',
+                                    title: 'Description',
+                                    text: 'For booking inquiries, collaborations, or just to say hello, please drop me an email.',
+                                    style: {
+                                        fontSize: '18px', // size="lg"
+                                        color: 'var(--mantine-color-dimmed)',
+                                        marginBottom: '32px'
+                                    }
+                                },
+                                {
+                                    _id: '2',
+                                    title: 'Rep 1 Header',
+                                    text: 'Representation',
+                                    style: {
+                                        fontFamily: 'Playfair Display, serif',
+                                        fontSize: '20px', // h3 approx
+                                        fontWeight: 'bold',
+                                        marginBottom: '16px'
+                                    }
+                                },
+                                {
+                                    _id: '3',
+                                    title: 'Rep 1 Content',
+                                    text: 'Creative Artists Agency (CAA)\nagent@caa.com | +1 (555) 123-4567',
+                                    style: {
+                                        fontWeight: 600,
+                                        marginBottom: '5px',
+                                        whiteSpace: 'pre-line'
+                                    }
+                                },
+                                {
+                                    _id: '4',
+                                    title: 'Rep 2 Header',
+                                    text: 'Direct Management',
+                                    style: {
+                                        fontFamily: 'Playfair Display, serif',
+                                        fontSize: '20px', // h3 approx
+                                        fontWeight: 'bold',
+                                        marginBottom: '16px',
+                                        marginTop: '16px'
+                                    }
+                                },
+                                {
+                                    _id: '5',
+                                    title: 'Rep 2 Content',
+                                    text: 'Jane Doe Management\njane@management.com | +1 (555) 987-6543',
+                                    style: {
+                                        fontWeight: 600,
+                                        marginBottom: '5px',
+                                        whiteSpace: 'pre-line'
+                                    }
+                                }
+                            ]}
+                        />
                     </Box>
 
                     <EditableSocialLinks
@@ -91,6 +135,6 @@ export function Contact() {
                     </form>
                 </motion.div> */}
             </SimpleGrid>
-        </Container>
+        </Container >
     );
 }

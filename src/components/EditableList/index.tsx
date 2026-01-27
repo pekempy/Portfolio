@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, Card, Group, Modal, Stack, Text, TextInput, FileButton } from '@mantine/core';
+import { ActionIcon, Box, Button, Card, Group, Modal, Stack, Text, TextInput, FileButton, SegmentedControl, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useContent } from '../../context/ContentContext';
 import { IconDeviceFloppy, IconDragDrop, IconMenuOrder, IconPlus, IconTrash, IconUpload, IconFocus } from '@tabler/icons-react';
@@ -16,10 +16,12 @@ export interface ListItem {
     dateFrom?: string;
     dateTo?: string;
     objectPosition?: string;
+    orientation?: 'landscape' | 'portrait';
+    text?: string;
     [key: string]: unknown;
 }
 
-function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubtitle, enableDate }: { id: string, item: ListItem, removeItem: (id: string) => void, updateItem: (id: string, field: string, value: string) => void, enableSlug?: boolean, enableSubtitle?: boolean, enableDate?: boolean }) {
+function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubtitle, enableDate, itemFields }: { id: string, item: ListItem, removeItem: (id: string) => void, updateItem: (id: string, field: string, value: string) => void, enableSlug?: boolean, enableSubtitle?: boolean, enableDate?: boolean, itemFields?: string[] }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
     const style = { transform: CSS.Transform.toString(transform), transition };
     const [isUploading, setIsUploading] = useState(false);
@@ -99,6 +101,13 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
         };
     }, [isDragging, id, updateItem]);
 
+    const orientation = (item.orientation as 'landscape' | 'portrait') || 'landscape';
+    const aspectRatio = orientation === 'portrait' ? 3 / 4 : 4 / 3;
+    const thumbWidth = orientation === 'portrait' ? 80 : 120;
+    const thumbHeight = thumbWidth / aspectRatio;
+
+    const hasField = (field: string) => !itemFields || itemFields.includes(field);
+
     return (
         <>
             <Card withBorder shadow="sm" radius="md" mb="sm" ref={setNodeRef} style={style} {...attributes}>
@@ -107,13 +116,53 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
                         <IconDragDrop size={20} color="gray" />
                     </div>
 
+
+
+
+                    {!isVideo && item.src && hasField('src') && (
+                        <Box
+                            style={{
+                                width: thumbWidth,
+                                height: thumbHeight,
+                                borderRadius: '4px',
+                                overflow: 'hidden',
+                                flexShrink: 0,
+                                border: '1px solid #eee',
+                                backgroundColor: '#f9f9f9'
+                            }}
+                        >
+                            <img
+                                src={item.src}
+                                alt="Thumbnail"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    objectPosition: (item.objectPosition as string) || '50% 50%'
+                                }}
+                            />
+                        </Box>
+                    )}
+
                     <Box style={{ flex: 1 }}>
-                        <TextInput
-                            label="Title"
-                            value={item.title}
-                            onChange={(e) => updateItem(id, 'title', e.currentTarget.value)}
-                            mb="xs"
-                        />
+                        {hasField('title') && (
+                            <TextInput
+                                label="Title"
+                                value={item.title}
+                                onChange={(e) => updateItem(id, 'title', e.currentTarget.value)}
+                                mb="xs"
+                            />
+                        )}
+                        {hasField('text') && (
+                            <Textarea
+                                label="Paragraph Text"
+                                value={item.text || ''}
+                                onChange={(e) => updateItem(id, 'text', e.currentTarget.value)}
+                                mb="xs"
+                                minRows={3}
+                                autosize
+                            />
+                        )}
                         {(enableSlug || item.slug !== undefined) && (
                             <TextInput
                                 label="URL Slug (e.g. project-name)"
@@ -148,13 +197,27 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
                             </Group>
                         )}
                         <Group align="flex-end" gap="xs">
-                            <TextInput
-                                label={isVideo ? 'Video URL' : 'Image URL'}
-                                value={item.src}
-                                onChange={(e) => updateItem(id, 'src', e.currentTarget.value)}
-                                style={{ flex: 1 }}
-                            />
-                            {!isVideo && (
+                            {!isVideo && hasField('orientation') && (
+                                <SegmentedControl
+                                    value={orientation}
+                                    onChange={(val) => updateItem(id, 'orientation', val)}
+                                    data={[
+                                        { label: 'L', value: 'landscape' },
+                                        { label: 'P', value: 'portrait' }
+                                    ]}
+                                    size="xs"
+                                    w={80}
+                                />
+                            )}
+                            {hasField('src') && (
+                                <TextInput
+                                    label={isVideo ? 'Video URL' : 'Image URL'}
+                                    value={item.src}
+                                    onChange={(e) => updateItem(id, 'src', e.currentTarget.value)}
+                                    style={{ flex: 1 }}
+                                />
+                            )}
+                            {!isVideo && hasField('src') && (
                                 <>
                                     <Button
                                         variant="light"
@@ -180,8 +243,8 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
                     <ActionIcon color="red" variant="subtle" onClick={() => removeItem(id)} mt={5}>
                         <IconTrash size={20} />
                     </ActionIcon>
-                </Group>
-            </Card>
+                </Group >
+            </Card >
 
             <Modal
                 opened={isPositioning}
@@ -198,8 +261,8 @@ function SortableItem({ id, item, removeItem, updateItem, enableSlug, enableSubt
                         onMouseDown={handleMouseDown}
                         style={{
                             position: 'relative',
-                            height: '250px',
-                            width: '370px',
+                            height: orientation === 'portrait' ? '300px' : '250px',
+                            width: orientation === 'portrait' ? '225px' : '333px',
                             margin: '0 auto',
                             overflow: 'hidden',
                             borderRadius: '8px',
@@ -248,9 +311,10 @@ interface EditableListProps {
     enableSubtitle?: boolean;
     enableDate?: boolean;
     appendItems?: React.ReactNode;
+    itemFields?: string[];
 }
 
-export function EditableList({ contentKey, defaultItems, renderItem, title, itemContainer: Container, itemContainerProps, enableSlug, enableSubtitle, enableDate, appendItems }: EditableListProps) {
+export function EditableList({ contentKey, defaultItems, renderItem, title, itemContainer: Container, itemContainerProps, enableSlug, enableSubtitle, enableDate, appendItems, itemFields }: EditableListProps) {
     const { content, updateContent, isEditable } = useContent();
     const items = (content[contentKey] as ListItem[]) || defaultItems;
 
@@ -350,6 +414,7 @@ export function EditableList({ contentKey, defaultItems, renderItem, title, item
                                     enableSlug={enableSlug}
                                     enableSubtitle={enableSubtitle}
                                     enableDate={enableDate}
+                                    itemFields={itemFields}
                                 />
                             ))}
                         </SortableContext>

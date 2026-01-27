@@ -58,7 +58,7 @@ export function getItem(val: unknown, defaultText: string): ContentItem {
         const v = val as Record<string, unknown>;
         return {
             text: (typeof v.text === 'string' ? v.text : undefined) ?? defaultText,
-            style: (typeof v.style === 'object' && v.style !== null) ? (v.style as ExtendedCSSProperties) : {}
+            style: (typeof v.style === 'object' && v.style !== null) ? (v.style as ExtendedCSSProperties) : {},
         };
     }
 

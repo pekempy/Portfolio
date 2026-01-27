@@ -1,11 +1,11 @@
-import { Text, Textarea, Tooltip, Popover, ColorInput, NumberInput, Select, ActionIcon, Group, Stack, Button, Box } from '@mantine/core';
+import { Text, Textarea, Tooltip, Popover, ColorInput, NumberInput, Select, ActionIcon, Group, Stack, Button, Box, TextInput } from '@mantine/core';
 import { useContent } from '../../context/ContentContext';
 import { getItem, type ExtendedCSSProperties } from '../../utils/contentUtils';
-import { useState } from 'react';
-import { IconPencil, IconBold, IconItalic, IconUnderline } from '@tabler/icons-react';
+import { useState, useRef } from 'react';
+import { IconPencil, IconBold, IconItalic, IconUnderline, IconLink } from '@tabler/icons-react';
 
 interface EditableTextProps extends React.ComponentPropsWithoutRef<React.ElementType> {
-    contentKey: string;
+    contentKey?: string;
     defaultValue?: string;
     as?: React.ElementType;
     style?: React.CSSProperties;
@@ -14,6 +14,8 @@ interface EditableTextProps extends React.ComponentPropsWithoutRef<React.Element
     styleKey?: string;
     extended?: boolean;
     multiline?: boolean;
+    value?: { text: string; style?: ExtendedCSSProperties;[key: string]: unknown };
+    onSave?: (newValue: { text: string; style: ExtendedCSSProperties }) => void;
 }
 
 const FONTS = [
@@ -50,34 +52,47 @@ export function EditableText({
     styleKey,
     extended = false,
     multiline = false,
+    value,
+    onSave,
     ...props
 }: EditableTextProps) {
     const { content, updateContent, bulkUpdate, isEditable } = useContent();
-    const item = getItem(content[contentKey], defaultValue);
-    const styleSource = styleKey ? getItem(content[styleKey], '') : item;
+    const item = value || (contentKey ? getItem(content[contentKey], defaultValue) : { text: defaultValue, style: {} });
+    const styleSource = value || (styleKey ? getItem(content[styleKey], '') : item);
 
     const [isEditing, setIsEditing] = useState(false);
     const [tempText, setTempText] = useState(item.text);
     const [tempStyle, setTempStyle] = useState<ExtendedCSSProperties>(styleSource.style || {});
+    const [linkUrl, setLinkUrl] = useState('');
+    const [showLinkInput, setShowLinkInput] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSave = () => {
-        if (styleKey) {
-            bulkUpdate({
-                [contentKey]: { text: tempText },
-                [styleKey]: { style: tempStyle }
-            });
-        } else {
-            updateContent(contentKey, { text: tempText, style: tempStyle });
+        if (onSave) {
+            onSave({ text: tempText, style: tempStyle });
+        } else if (contentKey) {
+            if (styleKey) {
+                bulkUpdate({
+                    [contentKey]: { text: tempText },
+                    [styleKey]: { style: tempStyle }
+                });
+            } else {
+                updateContent(contentKey, { text: tempText, style: tempStyle });
+            }
         }
         setIsEditing(false);
+        setShowLinkInput(false);
+        setLinkUrl('');
     };
 
     const handleCancel = () => {
-        const currentItem = getItem(content[contentKey], defaultValue);
-        const currentStyleSource = styleKey ? getItem(content[styleKey], '') : currentItem;
+        const currentItem = value || (contentKey ? getItem(content[contentKey], defaultValue) : { text: defaultValue, style: {} });
+        const currentStyleSource = value || (styleKey ? getItem(content[styleKey], '') : currentItem);
         setTempText(currentItem.text);
         setTempStyle(currentStyleSource.style || {});
         setIsEditing(false);
+        setShowLinkInput(false);
+        setLinkUrl('');
     };
 
     const toggleStyle = (key: keyof ExtendedCSSProperties, value: unknown, defaultValue: unknown) => {
@@ -87,6 +102,25 @@ export function EditableText({
             return { ...prev, [key]: next };
         });
     };
+
+    const insertLink = () => {
+        if (!textareaRef.current) return;
+        const start = textareaRef.current.selectionStart;
+        const end = textareaRef.current.selectionEnd;
+
+        if (start === end) {
+            // No selection, just insert link
+            const newText = tempText.slice(0, start) + `[Link Text](${linkUrl})` + tempText.slice(end);
+            setTempText(newText);
+        } else {
+            const selectedText = tempText.slice(start, end);
+            const newText = tempText.slice(0, start) + `[${selectedText}](${linkUrl})` + tempText.slice(end);
+            setTempText(newText);
+        }
+        setLinkUrl('');
+        setShowLinkInput(false);
+    };
+
 
     const mergedStyle: ExtendedCSSProperties = {
         ...style,
@@ -104,8 +138,9 @@ export function EditableText({
         }
     }
 
-    if (multiline && !mergedStyle.width) {
-        mergedStyle.width = '100%';
+    if (multiline) {
+        if (!mergedStyle.width) mergedStyle.width = '100%';
+        if (!mergedStyle.whiteSpace) mergedStyle.whiteSpace = 'pre-wrap';
     }
 
     const styleWithVars: React.CSSProperties & Record<string, unknown> = { ...mergedStyle };
@@ -121,6 +156,40 @@ export function EditableText({
         const baseClass = typeof props.className === 'function' ? props.className(args as { isActive: boolean }) : (props.className || '');
         return `editable-text-wrapper ${baseClass}`.trim();
     };
+
+    function renderContent(text: string) {
+        const regex = /\[(.*?)\]\((.*?)\)/g;
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            // Text before match
+            if (match.index > lastIndex) {
+                parts.push(text.slice(lastIndex, match.index));
+            }
+            // The link
+            parts.push(
+                <a
+                    key={match.index}
+                    href={match[2]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'inherit', textDecoration: 'underline' }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {match[1]}
+                </a>
+            );
+            lastIndex = regex.lastIndex;
+        }
+        // Remaining text
+        if (lastIndex < text.length) {
+            parts.push(text.slice(lastIndex));
+        }
+
+        return parts.length > 0 ? parts : text;
+    }
 
     if (isEditable) {
         if (isEditing) {
@@ -153,6 +222,7 @@ export function EditableText({
                             }}
                         >
                             <Textarea
+                                ref={textareaRef}
                                 aria-label="Edit text content"
                                 value={tempText}
                                 onChange={(e) => setTempText(e.currentTarget.value)}
@@ -268,7 +338,31 @@ export function EditableText({
                                     >
                                         <IconUnderline size={20} />
                                     </ActionIcon>
+                                    <ActionIcon
+                                        variant={showLinkInput ? 'filled' : 'default'}
+                                        onClick={() => {
+                                            // Focus link input if opening
+                                            setShowLinkInput(v => !v);
+                                        }}
+                                        size="lg"
+                                        title="Insert Link"
+                                    >
+                                        <IconLink size={20} />
+                                    </ActionIcon>
                                 </Group>
+
+                                {showLinkInput && (
+                                    <Group align="flex-end">
+                                        <TextInput
+                                            style={{ flex: 1 }}
+                                            placeholder="https://example.com"
+                                            label="Link URL"
+                                            value={linkUrl}
+                                            onChange={(e) => setLinkUrl(e.currentTarget.value)}
+                                        />
+                                        <Button onClick={insertLink} size="sm" color="gold" c="dark">Insert</Button>
+                                    </Group>
+                                )}
 
                                 {extended && (
                                     <>
@@ -359,6 +453,19 @@ export function EditableText({
                                     />
                                 </Group>
 
+                                <Group grow>
+                                    <NumberInput
+                                        label="Margin L"
+                                        value={parseInt(String(tempStyle.marginLeft || 0))}
+                                        onChange={(val) => setTempStyle(s => ({ ...s, marginLeft: val ? `${val}px` : undefined }))}
+                                    />
+                                    <NumberInput
+                                        label="Margin R"
+                                        value={parseInt(String(tempStyle.marginRight || 0))}
+                                        onChange={(val) => setTempStyle(s => ({ ...s, marginRight: val ? `${val}px` : undefined }))}
+                                    />
+                                </Group>
+
                                 {extended && (
                                     <Group grow>
                                         <NumberInput
@@ -437,7 +544,7 @@ export function EditableText({
                         outlineOffset: '1px',
                     }}
                 >
-                    {item.text}
+                    {renderContent(item.text)}
                     <IconPencil
                         size={12}
                         style={{
@@ -465,7 +572,7 @@ export function EditableText({
 
     return (
         <Component {...props} className={finalClassName} style={styleWithVars}>
-            {item.text}
+            {renderContent(item.text)}
         </Component>
     );
 }

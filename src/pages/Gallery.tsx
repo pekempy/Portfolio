@@ -1,11 +1,13 @@
-import { Container, Title, SimpleGrid, Image, Box, Modal, ActionIcon } from '@mantine/core';
+import { Container, Title, Image, Box, Modal, ActionIcon } from '@mantine/core';
 import { motion } from 'framer-motion';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
+
 import { EditableText } from '../components/EditableText';
 import { EditableList, type ListItem } from '../components/EditableList';
 import { useContent } from '../context/ContentContext';
+import { MasonryGrid } from '../components/MasonryGrid';
 
 const defaultGalleryImages = [
     { _id: '1', title: 'Image 1', src: '/about.png' },
@@ -63,43 +65,16 @@ export function Gallery() {
                     contentKey="gallery.items"
                     defaultItems={defaultGalleryImages}
                     title="Gallery Images"
-                    itemContainer={SimpleGrid}
-                    itemContainerProps={{ cols: { base: 1, sm: 2, md: 3 }, spacing: 'xl' }}
-                    appendItems={
-                        projectGalleryItems.map((item, index) => (
-                            <Box
-                                key={`proj-${index}`}
-                                style={{ overflow: 'hidden', borderRadius: '4px', cursor: 'zoom-in' }}
-                                onClick={() => handleImageClick(galleryItems.length + index)}
-                            >
-                                <Image
-                                    src={item.src}
-                                    radius="md"
-                                    h={300}
-                                    style={{ objectFit: 'cover', objectPosition: (item.objectPosition as string) || 'center', transition: 'filter 0.3s' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(1.1)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.filter = 'brightness(1)'}
-                                />
-                            </Box>
-                        ))
-                    }
-                    renderItem={(item, index) => (
-                        <Box
-                            key={index}
-                            style={{ overflow: 'hidden', borderRadius: '4px', cursor: 'zoom-in' }}
-                            onClick={() => handleImageClick(index)}
-                        >
-                            <Image
-                                src={item.src}
-                                radius="md"
-                                h={300}
-                                style={{ objectFit: 'cover', objectPosition: (item.objectPosition as string) || 'center', transition: 'filter 0.3s' }}
-                                onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(1.1)'}
-                                onMouseLeave={(e) => e.currentTarget.style.filter = 'brightness(1)'}
-                            />
-                        </Box>
-                    )}
+                    appendItems={null}
+                    renderItem={() => null}
                 />
+
+                <Box>
+                    <MasonryGrid
+                        items={allGalleryItems}
+                        onItemClick={(index) => handleImageClick(index)}
+                    />
+                </Box>
             </motion.div>
 
             {allGalleryItems.length > 0 && (

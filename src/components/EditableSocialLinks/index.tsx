@@ -8,7 +8,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
 import { ICON_MAP, ICON_OPTIONS } from '../../utils/contentUtils';
 
-// Define interface for Social Link Item
 interface SocialLinkItem {
     _id: string;
     icon?: string;

@@ -1,9 +1,11 @@
-import { Container, Title, Text, SimpleGrid, Image, Box, Grid, ActionIcon, Modal, Group } from '@mantine/core';
+import { Container, Title, Text, Image, Box, Grid, ActionIcon, Modal, Group } from '@mantine/core';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { EditableText } from '../components/EditableText';
 import { EditableList, type ListItem } from '../components/EditableList';
+import { MasonryGrid } from '../components/MasonryGrid';
+import { EditableParagraphs } from '../components/EditableParagraphs';
 import { useContent } from '../context/ContentContext';
 import { IconChevronLeft, IconChevronRight, IconX, IconArrowLeft } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -78,7 +80,7 @@ export function WorkDetail() {
                                 c="dimmed"
                                 fw={500}
                             />
-                            <Text c="dimmed">—</Text>
+                            <EditableText contentKey={`${projectKeyBase}.dateSeparator`} defaultValue="—" />
                             <EditableText
                                 contentKey={`${projectKeyBase}.dateTo`}
                                 styleKey="work.detail.date"
@@ -90,14 +92,9 @@ export function WorkDetail() {
                         </Group>
 
                         <Box mb={50}>
-                            <EditableText
-                                contentKey={`${projectKeyBase}.content`}
-                                styleKey="work.detail.content"
+                            <EditableParagraphs
+                                contentKey={`${projectKeyBase}.contentBlocks`}
                                 defaultValue="Describe the production, your role, and your experience here. This area is fully editable and can contain multiple paragraphs."
-                                as={Text}
-                                size="lg"
-                                style={{ lineHeight: 1.8 }}
-                                multiline
                             />
                         </Box>
                     </Grid.Col>
@@ -118,24 +115,18 @@ export function WorkDetail() {
                         contentKey={`${projectKeyBase}.gallery`}
                         defaultItems={[]}
                         title="Project Gallery"
-                        itemContainer={SimpleGrid}
-                        itemContainerProps={{ cols: { base: 1, sm: 2, md: 3 }, spacing: 'xl' }}
-                        renderItem={(item, index) => (
-                            <Box
-                                key={index}
-                                style={{ overflow: 'hidden', borderRadius: '4px', cursor: 'zoom-in' }}
-                                onClick={() => handleImageClick(index)}
-                            >
-                                <Image
-                                    src={item.src}
-                                    radius="md"
-                                    h={250}
-                                    style={{ objectFit: 'cover', objectPosition: (item.objectPosition as string) || 'center' }}
-                                />
-                            </Box>
-                        )}
+                        appendItems={null}
+                        renderItem={() => null}
                     />
+
+                    <Box mt="xl">
+                        <MasonryGrid
+                            items={galleryItems}
+                            onItemClick={(index) => handleImageClick(index)}
+                        />
+                    </Box>
                 </Box>
+
             </motion.div>
 
             {galleryItems.length > 0 && (
