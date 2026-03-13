@@ -1,8 +1,8 @@
 # 🎭 Portfolio Website
 
-A high-performance, full-stack portfolio application featuring real-time content editing, automatic image optimization, and a premium cinematic UI.
+A high-performance, full-stack portfolio application featuring real-time content editing, automatic image optimisation, and a premium cinematic UI.
 
-**Built with:** React (Vite) • Express.js • Sharp (Image Optimization) • Mantine UI • Framer Motion
+**Built with:** React (Vite) • Express.js • Sharp (Image optimisation) • Mantine UI • Framer Motion
 
 ---
 
@@ -35,7 +35,7 @@ npm run dev
 
 ## ⚙️ Key Features & Config
 
-### 🖼️ Automatic Image Optimization
+### 🖼️ Automatic Image optimisation
 The server uses **Sharp** to automatically convert all uploads to WebP, resize to 2000px, and compress for instant loading.
 
 ### 🔐 Admin Authentication
@@ -88,9 +88,9 @@ pm2 restart portfolio
 ```
 
 ### 🖼️ One-time Image Migration
-If you have existing images on the server, run this *once* after deploying to convert them all to optimized WebP format:
+If you have existing images on the server, run this *once* after deploying to convert them all to optimised WebP format:
 ```bash
-node scripts/optimize_images.js
+node scripts/optimise_images.js
 ```
 
 ---

@@ -12,9 +12,9 @@ const DATA_DIR = path.join(rootDir, 'data');
 const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
 const STAGED_FILE = path.join(DATA_DIR, 'content.staged.json');
 
-async function optimizeImages() {
+async function optimiseImages() {
     if (!fs.existsSync(UPLOADS_DIR)) {
-        console.log('Uploads directory not found at:', UPLOADS_DIR);
+        console.log('Uploads directory not found');
         return;
     }
 
@@ -31,14 +31,14 @@ async function optimizeImages() {
             const inputPath = path.join(UPLOADS_DIR, file);
             const outputPath = path.join(UPLOADS_DIR, webpName);
 
-            // Skip if webp already exists
             if (fs.existsSync(outputPath) && file !== webpName) {
+                console.log(`Skipping ${file}, webp already exists.`);
                 mapping[`/uploads/${file}`] = `/uploads/${webpName}`;
                 continue;
             }
 
             try {
-                console.log(`Optimizing ${file}...`);
+                console.log(`optimising ${file}...`);
                 await sharp(inputPath)
                     .resize({
                         width: 2000,
@@ -48,15 +48,18 @@ async function optimizeImages() {
                     })
                     .webp({ quality: 80 })
                     .toFile(outputPath);
-                
+
                 mapping[`/uploads/${file}`] = `/uploads/${webpName}`;
+
+                // If the original was NOT webp, we can delete it later or keep it.
+                // For safety, let's keep it for now but we will update the JSON references.
             } catch (err) {
-                console.error(`Failed to optimize ${file}:`, err);
+                console.error(`Failed to optimise ${file}:`, err);
             }
         }
     }
 
-    // Update JSON files to point to new WebP files
+    // Update JSON files
     [CONTENT_FILE, STAGED_FILE].forEach(filePath => {
         if (fs.existsSync(filePath)) {
             console.log(`Updating references in ${path.basename(filePath)}...`);
@@ -65,6 +68,7 @@ async function optimizeImages() {
 
             for (const [oldUrl, newUrl] of Object.entries(mapping)) {
                 if (content.includes(oldUrl)) {
+                    // Use regex to replace exact matches in JSON strings
                     const regex = new RegExp(oldUrl.replace(/\//g, '\\/'), 'g');
                     content = content.replace(regex, newUrl);
                     updated = true;
@@ -80,8 +84,7 @@ async function optimizeImages() {
         }
     });
 
-    console.log('✅ Optimization complete!');
-    console.log('You can now safely delete the old .jpg and .png files from public/uploads if you wish.');
+    console.log('optimisation complete!');
 }
 
-optimizeImages().catch(console.error);
+optimiseImages().catch(console.error);
