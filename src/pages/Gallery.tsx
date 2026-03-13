@@ -113,6 +113,7 @@ export function Gallery() {
                     <Image
                         src={allGalleryItems[selectedIndex]?.src}
                         onClick={(e) => e.stopPropagation()}
+                        decoding="async"
                         style={{
                             maxHeight: '90vh',
                             maxWidth: '90vw',

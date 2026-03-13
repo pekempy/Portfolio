@@ -38,6 +38,8 @@ export function MasonryGrid({ items, onItemClick }: MasonryGridProps) {
                                             radius="md"
                                             w="100%"
                                             h="auto"
+                                            loading="lazy"
+                                            decoding="async"
                                             style={{
                                                 aspectRatio: isPortrait ? '3/4' : '4/3',
                                                 objectFit: 'cover',

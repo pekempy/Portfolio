@@ -51,6 +51,7 @@ export function Home() {
                     h="100%"
                     w="100%"
                     fit="cover"
+                    loading="eager"
                     style={{ display: 'block' }}
                 />
             </motion.div>

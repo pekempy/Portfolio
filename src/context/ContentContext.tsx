@@ -17,6 +17,7 @@ interface ContentContextType {
     isEditable: boolean;
     isAdmin: boolean;
     isStaged: boolean;
+    isLoading: boolean;
     setEditable: (value: boolean) => void;
     login: (values: Record<string, unknown>) => Promise<boolean>;
     logout: () => Promise<void>;
@@ -29,6 +30,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     const [isEditable, setEditable] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isStaged, setIsStaged] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -61,6 +63,8 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
                 console.error('Failed to sync content:', err);
                 const local = localStorage.getItem('site_content');
                 if (local) setContent(JSON.parse(local));
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -210,6 +214,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
             isEditable,
             isAdmin,
             isStaged,
+            isLoading,
             setEditable,
             login,
             logout

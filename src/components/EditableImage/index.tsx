@@ -12,6 +12,7 @@ interface EditableImageProps extends ImageProps {
     contentKey: string;
     defaultValue: string;
     customTrigger?: React.ReactNode;
+    loading?: 'lazy' | 'eager';
 }
 
 export function EditableImage({ contentKey, defaultValue, style, customTrigger, ...props }: EditableImageProps) {
@@ -143,6 +144,8 @@ export function EditableImage({ contentKey, defaultValue, style, customTrigger, 
                         <Image
                             src={src}
                             {...props}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -259,5 +262,13 @@ export function EditableImage({ contentKey, defaultValue, style, customTrigger, 
     }
 
     const finalStyle: MantineStyleProp = [style, item.style as React.CSSProperties];
-    return <Image src={src} style={finalStyle} {...props} />;
+    return (
+        <Image
+            src={src}
+            style={finalStyle}
+            loading="lazy"
+            decoding="async"
+            {...props}
+        />
+    );
 }
