@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { EditableText } from '../components/EditableText';
 import { EditableList, type ListItem } from '../components/EditableList';
 import { useContent } from '../context/ContentContext';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { IconPlayerPlayFilled, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { ActionIcon } from '@mantine/core';
 
