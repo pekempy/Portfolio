@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { EditableText } from '../components/EditableText';
 import { EditableList, type ListItem } from '../components/EditableList';
 import { useContent } from '../context/ContentContext';
-import { useState } from 'react';
-import { IconPlayerPlayFilled } from '@tabler/icons-react';
+import { useRef, useEffect, useState } from 'react';
+import { IconPlayerPlayFilled, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { ActionIcon } from '@mantine/core';
 
 const defaultVideos = [
     { _id: '1', title: 'Theatrical Showreel', src: 'https://www.youtube.com/embed/YE7VzlLtp-4' },
@@ -47,8 +48,28 @@ export function Reels() {
     const { content } = useContent();
     const reels = (content['reels.items'] as ListItem[]) || defaultVideos;
     const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+    const videoRef = useRef<HTMLDivElement>(null);
 
     const activeVideo = reels[activeVideoIndex] || reels[0];
+
+    const scrollToVideo = () => {
+        videoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    const handleVideoChange = (index: number) => {
+        setActiveVideoIndex(index);
+        setTimeout(scrollToVideo, 100);
+    };
+
+    const handleNext = () => {
+        const nextIndex = (activeVideoIndex + 1) % reels.length;
+        handleVideoChange(nextIndex);
+    };
+
+    const handlePrev = () => {
+        const prevIndex = (activeVideoIndex - 1 + reels.length) % reels.length;
+        handleVideoChange(prevIndex);
+    };
 
     return (
         <Container size="xl" py={80} mt="xl">
@@ -75,8 +96,40 @@ export function Reels() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <Stack gap="xl" align="center">
+                        <Stack gap="xl" align="center" ref={videoRef}>
                             <Box w="100%" max-width={1000} pos="relative">
+                                {/* Navigation Arrows */}
+                                {reels.length > 1 && (
+                                    <>
+                                        <ActionIcon
+                                            variant="transparent"
+                                            color="gold"
+                                            size={60}
+                                            pos="absolute"
+                                            left={{ base: -40, md: -80 }}
+                                            top="50%"
+                                            style={{ transform: 'translateY(-50%)', zIndex: 10 }}
+                                            onClick={handlePrev}
+                                            className="nav-arrow-left"
+                                        >
+                                            <IconChevronLeft size={48} stroke={1} />
+                                        </ActionIcon>
+                                        <ActionIcon
+                                            variant="transparent"
+                                            color="gold"
+                                            size={60}
+                                            pos="absolute"
+                                            right={{ base: -40, md: -80 }}
+                                            top="50%"
+                                            style={{ transform: 'translateY(-50%)', zIndex: 10 }}
+                                            onClick={handleNext}
+                                            className="nav-arrow-right"
+                                        >
+                                            <IconChevronRight size={48} stroke={1} />
+                                        </ActionIcon>
+                                    </>
+                                )}
+
                                 {/* Decorative Glow */}
                                 <Box
                                     pos="absolute"
@@ -149,7 +202,7 @@ export function Reels() {
                                             backgroundColor: 'rgba(255,255,255,0.03)',
                                             overflow: 'hidden'
                                         }}
-                                        onClick={() => setActiveVideoIndex(index)}
+                                        onClick={() => handleVideoChange(index)}
                                     >
                                         <AspectRatio ratio={16 / 9} pos="relative">
                                             <Image
